@@ -39,6 +39,8 @@ class SlurpSite:
       if pathparts.query:
         self.log(".. IGNORING QUERY IN "+path)
       url = pathparts.path
+      if url == "":
+        return
 
 # Change relative URLs (those without leading /) into absolute URL
 # using parent URL as base
