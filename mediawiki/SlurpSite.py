@@ -41,6 +41,8 @@ class SlurpSite:
       url = pathparts.path
       if url == "":
         return
+      if url.find("%") >= 0:
+        url = urllib.parse.unquote(url)
 
 # Change relative URLs (those without leading /) into absolute URL
 # using parent URL as base
