@@ -3,6 +3,10 @@ import urllib.parse
 from html.parser import HTMLParser
 
 class SlurpLinkParser(HTMLParser):
+  def __init__(self):
+    self.links = []
+    super(SlurpLinkParser, self).__init__()
+
   def handle_starttag(self, tag, attrs):
     if tag == 'a' or tag == 'img':
       attr = dict(attrs)
@@ -26,7 +30,7 @@ class SlurpSite:
       self.loglevel = level
     return self.loglevel
 
-  def addToPending(self,path):
+  def addToPending(self,path,parent):
     pathparts = urllib.parse.urlparse(path)
 
     if pathparts.netloc and pathparts.netloc != self.params['host']:
@@ -34,17 +38,26 @@ class SlurpSite:
     else:
       if pathparts.query:
         self.log(".. IGNORING QUERY IN "+path)
-      if not pathparts.path in self.processed:
-        if not pathparts.path in self.pending:
-          self.pending.append(pathparts.path)
-          self.log(".. adding "+pathparts.path+" to pending",2)
+      url = pathparts.path
+
+# Change relative URLs (those without leading /) into absolute URL
+# using parent URL as base
+      if url.find('/') != 0:
+        pathend = parent.rfind('/')
+        url = parent[:pathend+1]+url
+
+# Add absolute intra-site URL to pending list if not yet processed
+      if not url in self.processed:
+        if not url in self.pending:
+          self.pending.append(url)
+          self.log(".. adding "+url+" to pending",2)
       else:
-        self.log(".. "+pathparts.path+" already processed, skipped",3)
+        self.log(".. "+url+" already processed, skipped",3)
 
   def readWebPage(self,url):
     host = self.params['host']
     addr = self.params['addr'] if 'addr' in self.params else host
-    conn = http.client.HTTPSConnection(addr)
+    conn = http.client.HTTPSConnection(addr) if self.params.get('ssl') else http.client.HTTPConnection(addr)
     conn.request("GET",url,headers = { "Host" : host })
     r = conn.getresponse()
     return r
@@ -53,15 +66,18 @@ class SlurpSite:
     self.data[url] = { 'redirect': nexturl }
     return
 
-  def processHTMLData(self,data):
+  def processHTMLData(self,data,url):
     parser = SlurpLinkParser()
     parser.links = []
     parser.feed(data)
     for link in parser.links:
       if 'href' in link:
-        self.addToPending(link['href'])
+        self.addToPending(link['href'],url)
       if 'src' in link:
-        self.addToPending(link['src'])
+        self.addToPending(link['src'],url)
+
+  def saveWebPage(self,url,data):
+    return
 
   def processPage(self,url):
     self.log("Reading "+url)
@@ -71,14 +87,28 @@ class SlurpSite:
       redirect = r.getheader("Location")
       self.log(".. redirect: "+redirect)
       self.processRedirect(url,redirect)
-      self.addToPending(redirect)
+      self.addToPending(redirect,url)
+      self.data[url] = { 'redirect': redirect }
+    elif r.status > 400:
+      self.data[url] = { 'error': r.status }
     else:
-      data = r.read()
-      content = r.getheader("Content-Type")
-      self.log(".. got data: %d bytes" % len(data),2)
-      self.data[url] = { 'content': content, 'data': data }
-      if "text/html" in content:
-        self.processHTMLData(data.decode('utf-8'))
+      webdata = r.read()
+      conType = r.getheader("Content-Type")
+      self.log(".. got data: %d bytes" % len(webdata),2)
+
+# Create the object describing the web page
+      entry  = { 'content': conType, 'len': len(webdata) }
+
+# Figure out what to do with page data
+      action = self.params.get('data')
+      if action == "save":
+        self.saveWebPage(url,data)
+      elif action != "drop":
+        entry['data'] = webdata
+
+      self.data[url] = entry
+      if "text/html" in conType:
+        self.processHTMLData(webdata.decode('utf-8'),url)
 
   def Slurp(self,root):
     self.pending.append(root)

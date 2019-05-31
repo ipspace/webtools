@@ -1,0 +1,7 @@
+---
+host: www.ipspace.net
+data: drop
+logging: 0
+ssl: true
+acl:
+- skip: v3/
