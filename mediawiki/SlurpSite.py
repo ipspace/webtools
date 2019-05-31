@@ -1,5 +1,6 @@
 import http.client
 import urllib.parse
+import os
 from html.parser import HTMLParser
 
 class SlurpLinkParser(HTMLParser):
@@ -91,8 +92,22 @@ class SlurpSite:
       if 'src' in link:
         self.addToPending(link['src'],url)
 
-  def saveWebPage(self,url,data):
-    return
+  def saveWebPage(self,url,data,conType):
+    output = self.params.get('output',None)
+    if output == None:
+      sys.exit("FATAL: Cannot save data, OUTPUT parameter not specified")
+    if url.find('/') != 0:
+      sys.exit("FATAL: URL "+url+" does not start with a /")
+
+    path = output + os.path.dirname(url)
+    binary = 'b'
+    if 'text' in conType:
+      binary = ''
+      data = data.decode('utf-8')
+    os.makedirs(path,exist_ok=True)
+    with open(output+url,'w'+binary) as outfile:
+      outfile.write(data)
+      outfile.close()
 
   def processPage(self,url):
     self.log("Reading "+url)
@@ -117,7 +132,7 @@ class SlurpSite:
 # Figure out what to do with page data
       action = self.params.get('data')
       if action == "save":
-        self.saveWebPage(url,data)
+        self.saveWebPage(url,webdata,conType)
       elif action != "drop":
         entry['data'] = webdata
 
