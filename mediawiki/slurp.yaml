@@ -1,7 +1,10 @@
 ---
-host: www.ipspace.net
-data: drop
+host: stream.ipspace.net
+data: save
+output: /tmp/a
 logging: 0
-ssl: true
+count: 10
+ssl: false
 acl:
-- skip: v3/
+- skip: /v3/
+- skip: /kb/
