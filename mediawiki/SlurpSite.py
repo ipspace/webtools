@@ -30,6 +30,13 @@ class SlurpSite:
       self.loglevel = level
     return self.loglevel
 
+  def matchURL(self,url,acl):
+    for a in acl:
+      for k in a:
+        if a[k] in url:
+          return k
+    return "default"
+
   def addToPending(self,path,parent):
     pathparts = urllib.parse.urlparse(path)
 
@@ -50,6 +57,10 @@ class SlurpSite:
         pathend = parent.rfind('/')
         url = parent[:pathend+1]+url
 
+      if self.matchURL(url,self.params.get('acl',[])) in ('skip','deny'):
+        self.log("... skipping "+url+" due to ACL entry",2)
+        return
+
 # Add absolute intra-site URL to pending list if not yet processed
       if not url in self.processed:
         if not url in self.pending:
@@ -62,7 +73,7 @@ class SlurpSite:
     host = self.params['host']
     addr = self.params['addr'] if 'addr' in self.params else host
     conn = http.client.HTTPSConnection(addr) if self.params.get('ssl') else http.client.HTTPConnection(addr)
-    conn.request("GET",url,headers = { "Host" : host })
+    conn.request("GET",urllib.parse.quote(url),headers = { "Host" : host })
     r = conn.getresponse()
     return r
 
