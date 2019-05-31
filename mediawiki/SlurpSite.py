@@ -104,10 +104,27 @@ class SlurpSite:
     if 'text' in conType:
       binary = ''
       data = data.decode('utf-8')
-    os.makedirs(path,exist_ok=True)
-    with open(output+url,'w'+binary) as outfile:
-      outfile.write(data)
-      outfile.close()
+
+# Try to make a directory path. It will fail with FileExistsError in which
+# case we have to move the existing file into directory/index.html
+#
+    try:
+      os.makedirs(path,exist_ok=True)
+    except FileExistsError:
+      os.rename(path,path+'.tmp')
+      os.makedirs(path)
+      os.rename(path+'.tmp',path+'/index.html')
+
+# Try to create the output file. If a directory with the same name exists,
+# create index.html in that directory
+#
+    try:
+      outfile = open(output+url,'w'+binary)
+    except IsADirectoryError:
+      outfile = open(output+url+'/index.html','w'+binary)
+
+    outfile.write(data)
+    outfile.close()
 
   def processPage(self,url):
     self.log("Reading "+url)
