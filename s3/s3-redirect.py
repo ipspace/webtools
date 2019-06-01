@@ -27,9 +27,11 @@ except:
   print("Cannot read redirects",sys.exc_info()[1])
   sys.exit(1)
 
-emptyname = "/tmp/empty-"+str(os.getpid())
+emptyname = "/tmp/empty-"+str(os.getpid())+".html"
 if argv.verbose: print("Creating temporary empty file",emptyname)
-with open(emptyname,"w") as file: file.close()
+with open(emptyname,"w") as file:
+  file.write("Redirect")
+  file.close()
 
 redircount = 0
 try:
@@ -37,9 +39,9 @@ try:
     if redir.rfind('/') == len(redir) - 1:
       redir = redir + argv.index
     if argv.verbose: print("Creating redirect for",redir,"=>",target)
-    exec = "aws s3 cp "+emptyname+" "+"'s3://"+argv.bucket+redir+"' --quiet --acl public-read --website-redirect '"+target+"'"
-    if argv.verbose: print("Executing ",exec)
-    stat = os.system(exec)
+    cmd = "aws s3 cp "+emptyname+" "+"'s3://"+argv.bucket+redir+"' --quiet --acl public-read --website-redirect '"+target+"'"
+    if argv.verbose: print("Executing ",cmd)
+    stat = os.system(cmd)
     if stat: sys.exit("AWS command failed with status %d " % stat)
     redircount = redircount + 1
 finally:
