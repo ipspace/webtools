@@ -79,6 +79,12 @@ class SlurpSite:
     return r
 
   def processRedirect(self,url,nexturl):
+    urlparts = urllib.parse.urlparse(nexturl)
+    if urlparts.netloc and (urlparts.netloc == self.params['host'] or urlparts.netloc in self.get('alias')):
+      nexturl = urlparts.path
+      if urlparts.query:
+        nexturl = nexturl + "?" + urlparts.query
+
     self.data[url] = { 'redirect': nexturl }
     return
 
@@ -135,7 +141,6 @@ class SlurpSite:
       self.log(".. redirect: "+redirect)
       self.processRedirect(url,redirect)
       self.addToPending(redirect,url)
-      self.data[url] = { 'redirect': redirect }
     elif r.status > 400:
       self.data[url] = { 'error': r.status }
     else:
