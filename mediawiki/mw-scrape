@@ -28,7 +28,7 @@ fi
 #
 SOURCE=$(dirname "${BASH_SOURCE[0]}")
 echo "Scraping web site into $STAGING_PATH"
-python3 $SOURCE/mw-slurp.py --output $STAGING_PATH
+python3 $SOURCE/mw-slurp.py --output $STAGING_PATH --redirect $STAGING_PATH/redirect.yaml
 #
 # Step 4 - rsync staging to final if we're using staging path
 #

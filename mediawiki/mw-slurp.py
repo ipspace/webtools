@@ -15,6 +15,8 @@ def parseCLI():
                    help='Maximum number of pages')
   parser.add_argument('--output', dest='output', action='store', default=None,
                    help='Output directory')
+  parser.add_argument('--redirect', dest='redirect', action='store', default=None,
+                   help='Redirection output YAML file')
   return parser.parse_args()
 
 def readConfig(fname,args):
