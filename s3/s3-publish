@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "Publishing $SITE_PATH to S3 bucket $SITE"
+touch $TIMESTAMPS/publish
+aws s3 sync $SITE_PATH s3://$SITE --follow-symlinks --acl public-read || rm $TIMESTAMPS/publish
+SOURCE=$(dirname "${BASH_SOURCE[0]}")
+echo "Creating redirects from $SITE_PATH/redirect.yaml"
+python3 $SOURCE/s3-redirect.py \
+  --redirect $SITE_PATH/redirect.yaml \
+  --bucket $SITE
