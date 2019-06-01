@@ -19,7 +19,7 @@ def readConfig(fname,args):
     try:
       params = yaml.safe_load(stream)
     except:
-      print("Cannot read slurp.yaml: ",sys.exc_info[0])
+      print("Cannot read slurp.yaml: ",sys.exc_info()[0])
       sys.exit(1)
 
   argv = vars(args)
