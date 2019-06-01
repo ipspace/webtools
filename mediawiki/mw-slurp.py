@@ -11,6 +11,8 @@ def parseCLI():
                    help='Configuration file')
   parser.add_argument('--report', dest='report', action='store', default=None,
                    help='Reporting format')
+  parser.add_argument('--count', dest='count', type=int, action='store', default=None,
+                   help='Maximum number of pages')
   return parser.parse_args()
 
 def readConfig(fname,args):
