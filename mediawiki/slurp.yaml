@@ -1,10 +1,21 @@
 ---
+#
+# Connection parameters
+#
 host: stream.ipspace.net
 data: save
-output: /tmp/a
+ssl: false
+#
+# Crawling parameters
+#
 logging: 0
 count: 10
-ssl: false
 acl:
 - skip: /v3/
 - skip: /kb/
+#
+# Output parameters
+#
+output: /tmp/a
+report: stats
+redirect: /tmp/redirect.yaml
