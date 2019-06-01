@@ -1,6 +1,7 @@
 import http.client
 import urllib.parse
 import os
+import re
 from html.parser import HTMLParser
 
 class SlurpLinkParser(HTMLParser):
@@ -98,6 +99,9 @@ class SlurpSite:
       if 'src' in link:
         self.addToPending(link['src'],url)
 
+  def removeHTMLComments(self,data):
+    return re.sub("(<!--.*?-->)", "", data, flags=re.DOTALL)
+
   def saveWebPage(self,url,data,conType):
     output = self.params.get('output',None)
     if output == None:
@@ -110,6 +114,9 @@ class SlurpSite:
     if 'text' in conType:
       binary = ''
       data = data.decode('utf-8')
+
+    if 'html' in conType and self.params.get('comments') == 'remove':
+      data = self.removeHTMLComments(data)
 
 # Try to make a directory path. It will fail with FileExistsError in which
 # case we have to move the existing file into directory/index.html

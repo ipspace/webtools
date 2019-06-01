@@ -13,6 +13,7 @@ count: 10
 acl:
 - skip: /v3/
 - skip: /kb/
+comments: remove
 #
 # Output parameters
 #
