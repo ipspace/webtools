@@ -13,7 +13,7 @@ def parseCLI():
                    help='Reporting format')
   parser.add_argument('--count', dest='count', type=int, action='store', default=None,
                    help='Maximum number of pages')
-  parser.add_argument('--output', dest='output', type=int, action='store', default=None,
+  parser.add_argument('--output', dest='output', action='store', default=None,
                    help='Output directory')
   return parser.parse_args()
 
