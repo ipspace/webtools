@@ -31,6 +31,7 @@ emptyname = "/tmp/empty-"+str(os.getpid())
 if argv.verbose: print("Creating temporary empty file",emptyname)
 with open(emptyname,"w") as file: file.close()
 
+redircount = 0
 try:
   for (redir,target) in redirects.items():
     if redir.rfind('/') == len(redir) - 1:
@@ -40,6 +41,10 @@ try:
     if argv.verbose: print("Executing ",exec)
     stat = os.system(exec)
     if stat: sys.exit("AWS command failed with status %d " % stat)
+    redircount = redircount + 1
 finally:
-  if argv.verbose: print("Cleanup: removing ",emptyname)
+  if argv.verbose:
+    print("Cleanup: removing ",emptyname)
+  else:
+    print("Created %d redirects " % redircount)
   os.remove(emptyname)
