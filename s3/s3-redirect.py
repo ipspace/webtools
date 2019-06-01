@@ -39,7 +39,8 @@ try:
     if redir.rfind('/') == len(redir) - 1:
       redir = redir + argv.index
     if argv.verbose: print("Creating redirect for",redir,"=>",target)
-    cmd = "aws s3 cp "+emptyname+" "+"'s3://"+argv.bucket+redir+"' --quiet --acl public-read --website-redirect '"+target+"'"
+    cmd = "aws s3 cp "+emptyname+" "+"'s3://"+argv.bucket+redir+"'" + \
+          " --quiet --acl public-read --content-type 'text/html' --website-redirect '"+target+"'"
     if argv.verbose: print("Executing ",cmd)
     stat = os.system(cmd)
     if stat: sys.exit("AWS command failed with status %d " % stat)
