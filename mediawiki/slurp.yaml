@@ -5,10 +5,11 @@
 host: stream.ipspace.net
 data: save
 ssl: false
+root: /About/ipSpace.net/Contact
 #
 # Crawling parameters
 #
-logging: 0
+logging: 3
 count: 10
 acl:
 - skip: /v3/

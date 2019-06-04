@@ -109,7 +109,19 @@ class SlurpSite:
     if url.find('/') != 0:
       sys.exit("FATAL: URL "+url+" does not start with a /")
 
-    path = output + os.path.dirname(url)
+    path = os.path.dirname(url)
+    name = os.path.basename(url)
+
+    # Dirty hack - for MW-style pages we have to emulate a directory
+    # if the path contains a '.'
+    if '.' in path and not '.' in name:
+      path = url
+      url  = url + '/index.html'
+
+    # Move paths to within the target directory
+    path = output + path
+    fname = output + url
+
     binary = 'b'
     if 'text' in conType:
       binary = ''
@@ -121,9 +133,12 @@ class SlurpSite:
 # Try to make a directory path. It will fail with FileExistsError in which
 # case we have to move the existing file into directory/index.html
 #
+
+    self.log("... saving data in "+path,2)
     try:
       os.makedirs(path,exist_ok=True)
     except FileExistsError:
+      self.log("... OOPS, making "+path+" into a directory",3)
       os.rename(path,path+'.tmp')
       os.makedirs(path)
       os.rename(path+'.tmp',path+'/index.html')
@@ -132,9 +147,10 @@ class SlurpSite:
 # create index.html in that directory
 #
     try:
-      outfile = open(output+url,'w'+binary)
+      outfile = open(fname,'w'+binary)
     except IsADirectoryError:
-      outfile = open(output+url+'/index.html','w'+binary)
+      self.log("... OOPS, making "+fname+" is a directory",3)
+      outfile = open(fname+'/index.html','w'+binary)
 
     outfile.write(data)
     outfile.close()
