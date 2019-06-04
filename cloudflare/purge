@@ -1,0 +1,26 @@
+#!/bin/bash
+. ~/.ssh/.cloudflare.sh
+if [ -z "CF_API_KEY" ]; then
+  echo "Cloudflare authentication parameters missing"
+  exit
+fi
+#
+# Get CloudFlare zone ID
+CF_ZONE=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$CF_DOMAIN" \
+     -H "X-Auth-Email: $CF_EMAIL" \
+     -H "X-Auth-Key: $CF_API_KEY" \
+     -H "Content-Type: application/json"|jq '.result[0].id' -r)
+#
+# Request cache purge
+CF_STAT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
+     -H "X-Auth-Email: $CF_EMAIL" \
+     -H "X-Auth-Key: $CF_API_KEY" \
+     -H "Content-Type: application/json" \
+     --data '{"purge_everything":true}')
+#
+# Check success status
+CF_SUCCESS=$(echo $CF_STAT|jq '.success')
+if [ "$CF_SUCCESS" != "true" ]; then
+  echo "CloudFlare purge failed"
+  echo $CF_STAT
+fi
