@@ -5,6 +5,7 @@ if [ -z $STAGING_PATH ]; then
 fi
 rm -fr $STAGING_PATH
 touch $TIMESTAMPS/scrape-start
+rm $TIMESTAMPS/scrape-end
 #
 # Step 1 - create final site directory if needed
 #
@@ -35,5 +36,5 @@ python3 $SOURCE/mw-slurp.py --output $STAGING_PATH --redirect $STAGING_PATH/redi
 if [ $STAGING_PATH != $SITE_PATH ]; then
   rsync -cvr $STAGING_PATH/* $SITE_PATH
 fi
-touch $TIMESTAMPS/scrape-finish
+touch $TIMESTAMPS/scrape-end
 

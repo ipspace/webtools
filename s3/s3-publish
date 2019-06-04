@@ -2,6 +2,7 @@
 echo "Publishing $SITE_PATH to S3 bucket $SITE"
 set -e
 touch $TIMESTAMPS/publish
+rm $TIMESTAMPS/publish-end
 #
 # Publish MediaWiki documents with explicit content-type and encoding
 #
