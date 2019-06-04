@@ -7,7 +7,7 @@ rm $TIMESTAMPS/publish-end
 # Publish MediaWiki documents with explicit content-type and encoding
 #
 aws s3 sync $SITE_PATH s3://$SITE \
-  --content-type "text/html" --content-encoding "utf-8" --exclude "*/*.*" \
+  --content-type "text/html; charset=utf-8" --exclude "*/*.*" \
   --acl public-read
 #
 # Publish all other files on the web site, trust AWS to set correct
