@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Minimum sanity check
+if [ -z "$SITE_PATH" ]; then
+  echo "Must set the site variables first"
+  exit
+fi
+#
 if [ -z $STAGING_PATH ]; then
   STAGING_PATH=$SITE_PATH
   echo "Staging directory is not used, writing directly into $SITE_PATH"
@@ -12,7 +19,7 @@ rm $TIMESTAMPS/scrape-end
 if [ ! -d $SITE_PATH ]; then
   echo "Creating site directory $SITE_PATH"
   mkdir $SITE_PATH
-  for path in $EXTRA 
+  for path in $EXTRA
   do
     echo "Adding $path to $SITE_PATH"
     ln -s $path $SITE_PATH
