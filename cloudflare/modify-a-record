@@ -1,0 +1,39 @@
+#!/bin/bash
+. ~/.ssh/.cloudflare.sh
+if [ -z "CF_API_KEY" ]; then
+  echo "Cloudflare authentication parameters missing"
+  exit
+fi
+echo "Updating CF DNS record for $1.$CF_DOMAIN to A: $2"
+#
+# Get CloudFlare zone ID
+CF_ZONE=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$CF_DOMAIN" \
+     -H "X-Auth-Email: $CF_EMAIL" \
+     -H "X-Auth-Key: $CF_API_KEY" \
+     -H "Content-Type: application/json"|jq '.result[0].id' -r)
+#
+# Get DNS record ID
+CF_REC=$(
+  curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records?type=A&name=$1.$CF_DOMAIN" \
+     -H "X-Auth-Email: $CF_EMAIL" \
+     -H "X-Auth-Key: $CF_API_KEY" \
+     -H "Content-Type: application/json"|jq '.result[0].id' -r)
+if [ -z $CF_REC ]; then
+  echo "Cannot find DNS record for $1.$CF_DOMAIN"
+  exit
+fi
+#
+# Modify DNS record
+CF_STAT=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records/$CF_REC" \
+     -H "X-Auth-Email: $CF_EMAIL" \
+     -H "X-Auth-Key: $CF_API_KEY" \
+     -H "Content-Type: application/json" \
+     --data "{\"type\":\"A\",\"name\":\"$1.$CF_DOMAIN\",\"content\":\"$2\",\"ttl\":1,\"proxied\":true}"
+)
+#
+# Check success status
+CF_SUCCESS=$(echo $CF_STAT|jq '.success')
+if [ "$CF_SUCCESS" != "true" ]; then
+  echo "CloudFlare DNS record modification failed"
+  echo $CF_STAT
+fi
