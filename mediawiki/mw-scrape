@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Minimum sanity check
+if [ -z "$SITE_PATH" ]; then
+  echo "Must set the site variables first"
+  exit
+fi
+#
+if [ -z $STAGING_PATH ]; then
+  STAGING_PATH=$SITE_PATH
+  echo "Staging directory is not used, writing directly into $SITE_PATH"
+fi
+rm -fr $STAGING_PATH
+touch $TIMESTAMPS/scrape-start
+rm $TIMESTAMPS/scrape-end
+#
+# Step 1 - create final site directory if needed
+#
+if [ ! -d $SITE_PATH ]; then
+  echo "Creating site directory $SITE_PATH"
+  mkdir $SITE_PATH
+  for path in $EXTRA
+  do
+    echo "Adding $path to $SITE_PATH"
+    ln -s $path $SITE_PATH
+  done
+fi
+#
+# Step 2 - create staging directory if needed (it might be equal to site directory)
+#
+if [ ! -d $STAGING_PATH ]; then
+  mkdir $STAGING_PATH
+fi
+#
+# Step 3 - scrape the web site
+#
+SOURCE=$(dirname "${BASH_SOURCE[0]}")
+echo "Scraping web site into $STAGING_PATH"
+python3 $SOURCE/mw-slurp.py --output $STAGING_PATH --redirect $STAGING_PATH/redirect.yaml
+#
+# Step 4 - rsync staging to final if we're using staging path
+#
+if [ $STAGING_PATH != $SITE_PATH ]; then
+  rsync -cvr $STAGING_PATH/* $SITE_PATH
+fi
+touch $TIMESTAMPS/scrape-end
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+if [ -z "$SITE_PATH" ]; then
+  echo "Must set the site variables first"
+  exit
+fi
+echo "Copying files with explicit HTML content type from $SITE_PATH to S3 bucket $SITE"
+set -e
+#
+# Publish MediaWiki documents with explicit content-type and encoding
+#
+aws s3 cp --recursive $SITE_PATH s3://$SITE \
+  --content-type 'text/html; charset=utf-8' --exclude "*/*.*" \
+  --acl public-read

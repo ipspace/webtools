@@ -1,0 +1,17 @@
+{
+    "IndexDocument": {
+        "Suffix": "index.html"
+    },
+    "RoutingRules": [
+        {
+            "Redirect": {
+                "ReplaceKeyWith": "Main_Page",
+                "HttpRedirectCode": "301"
+            },
+            "Condition": {
+                "HttpErrorCodeReturnedEquals": "403",
+                "KeyPrefixEquals": "VXLAN"
+            }
+        }
+    ]
+}

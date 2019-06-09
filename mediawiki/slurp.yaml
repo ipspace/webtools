@@ -1,0 +1,23 @@
+---
+#
+# Connection parameters
+#
+host: stream.ipspace.net
+data: save
+ssl: false
+root: /About/ipSpace.net/Contact
+#
+# Crawling parameters
+#
+logging: 3
+count: 10
+acl:
+- skip: /v3/
+- skip: /kb/
+comments: remove
+#
+# Output parameters
+#
+output: /tmp/a
+report: stats
+redirect: /tmp/redirect.yaml

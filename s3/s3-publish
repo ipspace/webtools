@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Minimum sanity check
+if [ -z "$SITE_PATH" ]; then
+  echo "Must set the site variables first"
+  exit
+fi
+#
+echo "Publishing $SITE_PATH to S3 bucket $SITE"
+set -e
+touch $TIMESTAMPS/publish
+rm $TIMESTAMPS/publish-end
+#
+# Publish MediaWiki documents with explicit content-type and encoding
+#
+aws s3 sync $SITE_PATH s3://$SITE \
+  --content-type "text/html; charset=utf-8" --exclude "*/*.*" \
+  --acl public-read --no-progress
+#
+# Publish all other files on the web site, trust AWS to set correct
+# content type based on extension or whatever
+#
+aws s3 sync $SITE_PATH s3://$SITE \
+  --follow-symlinks --exclude "*" --include "*/*.*" \
+  --acl public-read --no-progress
+#
+# Create redirects
+#
+SOURCE=$(dirname "${BASH_SOURCE[0]}")
+echo "Creating redirects from $SITE_PATH/redirect.yaml"
+python3 $SOURCE/s3-redirect.py \
+  --redirect $SITE_PATH/redirect.yaml \
+  --bucket $SITE
+touch $TIMESTAMPS/publish-end
