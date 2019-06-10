@@ -24,11 +24,12 @@ if [ -z $CF_REC ]; then
 fi
 #
 # Modify DNS record
+PROXY=${3:-true}
 CF_STAT=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records/$CF_REC" \
      -H "X-Auth-Email: $CF_EMAIL" \
      -H "X-Auth-Key: $CF_API_KEY" \
      -H "Content-Type: application/json" \
-     --data "{\"type\":\"A\",\"name\":\"$1.$CF_DOMAIN\",\"content\":\"$2\",\"ttl\":1,\"proxied\":true}"
+     --data "{\"type\":\"A\",\"name\":\"$1.$CF_DOMAIN\",\"content\":\"$2\",\"ttl\":1,\"proxied\":$PROXY}"
 )
 #
 # Check success status
