@@ -3,7 +3,7 @@ if [ -z $STAGING_PATH ]; then
   echo "Staging directory is not set, exiting..."
   exit
 fi
-pushd $STAGING_PATH
+cd $STAGING_PATH
 DATESTAMP=$(date "+%F %T")
 if [ ! -d ".git" ]; then
   git init
@@ -15,4 +15,3 @@ fi
 git add .
 git commit -m "Website change on $DATESTAMP"
 git push
-popd
