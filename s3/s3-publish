@@ -30,5 +30,7 @@ SOURCE=$(dirname "${BASH_SOURCE[0]}")
 echo "Creating redirects from $SITE_PATH/redirect.yaml"
 python3 $SOURCE/s3-redirect.py \
   --redirect $SITE_PATH/redirect.yaml \
-  --bucket $SITE
+  --bucket $SITE \
+  --source $SITE_PATH \
+  --run
 touch $TIMESTAMPS/publish-end

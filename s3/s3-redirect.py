@@ -13,8 +13,12 @@ def parseCLI():
                    help='Target S3 bucket')
   parser.add_argument('--index', dest='index', action='store', default='index.html',
                    help='Default HTML document')
+  parser.add_argument('--source', dest='source', action='store',
+                   help='Source directory')
   parser.add_argument('-v','--verbose', dest='verbose', action='store_true',
                    help='Increase verbosity')
+  parser.add_argument('--run', dest='run', action='store_true',
+                   help='Execute S3 commands')
   try:
     return parser.parse_args()
   except:
@@ -39,11 +43,23 @@ try:
     if redir.rfind('/') == len(redir) - 1:
       redir = redir + argv.index
     if argv.verbose: print("Creating redirect for",redir,"=>",target)
-    cmd = "aws s3 cp "+emptyname+" "+"'s3://"+argv.bucket+redir+"'" + \
+    fname = emptyname
+    if argv.source:
+      print("source: ",argv.source)
+      ftest = argv.source+redir
+      print("ftest: ",ftest)
+      if os.path.isfile(ftest):
+        fname = ftest
+
+    cmd = "aws s3 cp "+fname+" "+"'s3://"+argv.bucket+redir+"'" + \
           " --quiet --acl public-read --content-type 'text/html' --website-redirect '"+target+"'"
     if argv.verbose: print("Executing ",cmd)
-    stat = os.system(cmd)
-    if stat: sys.exit("AWS command failed with status %d " % stat)
+    if argv.run:
+      stat = os.system(cmd)
+      if stat: sys.exit("AWS command failed with status %d " % stat)
+    else:
+      if not argv.verbose:
+        print("DR: ",cmd)
     redircount = redircount + 1
 finally:
   if argv.verbose:
