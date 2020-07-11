@@ -45,13 +45,11 @@ try:
     if argv.verbose: print("Creating redirect for",redir,"=>",target)
     fname = emptyname
     if argv.source:
-      print("source: ",argv.source)
       ftest = argv.source+redir
-      print("ftest: ",ftest)
       if os.path.isfile(ftest):
         fname = ftest
 
-    cmd = "aws s3 cp "+fname+" "+"'s3://"+argv.bucket+redir+"'" + \
+    cmd = "aws s3 cp '"+fname+"' "+"'s3://"+argv.bucket+redir+"'" + \
           " --quiet --acl public-read --content-type 'text/html' --website-redirect '"+target+"'"
     if argv.verbose: print("Executing ",cmd)
     if argv.run:
