@@ -10,8 +10,3 @@ if [ ! -d ".git" ]; then
   rm -fr $STAGING_PATH/*
   git clone "$SITE_GIT" .
 fi
-
-#  
-#  git add .
-#  git commit -m "Initial commit"
-#  git push -u origin master
