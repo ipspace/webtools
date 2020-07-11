@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ -z $STAGING_PATH ]; then
+  echo "Git init: staging directory is not set, exiting..."
+  exit
+fi
+cd $STAGING_PATH
+DATESTAMP=$(date "+%F %T")
+if [ ! -d ".git" ]; then
+  echo "Initializing local Git repo"
+  rm -fr $STAGING_PATH/*
+  git clone "$SITE_GIT" .
+fi
+
+#  
+#  git add .
+#  git commit -m "Initial commit"
+#  git push -u origin master

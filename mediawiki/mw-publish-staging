@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Step 4 - rsync staging to final if we're using staging path
+#
+if [ -z $STAGING_PATH ]; then
+  echo "Staging directory is not set, exiting..."
+  exit
+fi
+
+if [ -z $SITE_PATH ]; then
+  echo "Site path is not set, exiting..."
+  exit
+fi
+
+if [ $STAGING_PATH != $SITE_PATH ]; then
+  rsync -cvr $STAGING_PATH/* $SITE_PATH
+fi

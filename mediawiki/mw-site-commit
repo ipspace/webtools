@@ -1,0 +1,18 @@
+#!/bin/bash
+if [ -z $STAGING_PATH ]; then
+  echo "Staging directory is not set, exiting..."
+  exit
+fi
+pushd $STAGING_PATH
+DATESTAMP=$(date "+%F %T")
+if [ ! -d ".git" ]; then
+  git init
+  git remote add origin "$SITE_GIT"
+  git add .
+  git commit -m "Initial commit"
+  git push -u origin master
+fi
+git add .
+git commit -m "Website change on $DATESTAMP"
+git push
+popd

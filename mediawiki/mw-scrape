@@ -13,6 +13,7 @@ fi
 rm -fr $STAGING_PATH
 touch $TIMESTAMPS/scrape-start
 rm $TIMESTAMPS/scrape-end
+SOURCE=$(dirname "${BASH_SOURCE[0]}")
 #
 # Step 1 - create final site directory if needed
 #
@@ -31,17 +32,20 @@ fi
 if [ ! -d $STAGING_PATH ]; then
   mkdir $STAGING_PATH
 fi
+if [ ! -z "$SITE_GIT" ]; then
+  $SOURCE/mw-git-init
+fi
 #
 # Step 3 - scrape the web site
 #
-SOURCE=$(dirname "${BASH_SOURCE[0]}")
 echo "Scraping web site into $STAGING_PATH"
 python3 $SOURCE/mw-slurp.py --output $STAGING_PATH --redirect $STAGING_PATH/redirect.yaml
 #
-# Step 4 - rsync staging to final if we're using staging path
+# Step 4 - Git commit, sync staging to final
 #
-if [ $STAGING_PATH != $SITE_PATH ]; then
-  rsync -cvr $STAGING_PATH/* $SITE_PATH
+if [ ! -z "$SITE_GIT" ]; then
+  $SOURCE/mw-site-commit
 fi
+$SOURCE/mw-publish-staging
 touch $TIMESTAMPS/scrape-end
 
