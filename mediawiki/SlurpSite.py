@@ -2,6 +2,7 @@ import http.client
 import urllib.parse
 import os
 import re
+import jinja2
 from html.parser import HTMLParser
 
 class SlurpLinkParser(HTMLParser):
@@ -79,16 +80,6 @@ class SlurpSite:
     r = conn.getresponse()
     return r
 
-  def processRedirect(self,url,nexturl):
-    urlparts = urllib.parse.urlparse(nexturl)
-    if urlparts.netloc and (urlparts.netloc == self.params['host'] or urlparts.netloc in self.get('alias')):
-      nexturl = urlparts.path
-      if urlparts.query:
-        nexturl = nexturl + "?" + urlparts.query
-
-    self.data[url] = { 'redirect': nexturl }
-    return
-
   def processHTMLData(self,data,url):
     parser = SlurpLinkParser()
     parser.links = []
@@ -154,6 +145,27 @@ class SlurpSite:
 
     outfile.write(data)
     outfile.close()
+
+  def createRedirectPage(self,url,nexturl):
+    if not hasattr(self,"redirect_j2"):
+      j2ENV = jinja2.Environment(loader=jinja2.FileSystemLoader('/'),trim_blocks=True,lstrip_blocks=True,undefined=jinja2.Undefined)
+      self.redirect_j2 = j2ENV.get_template(os.path.expanduser(self.params.get("redirect_j2")))
+
+    niceurl = re.sub('^/','',url)
+    html = self.redirect_j2.render({ 'url': niceurl, 'nexturl': nexturl })
+    self.saveWebPage(url,html.encode('utf-8'),"text")
+
+  def processRedirect(self,url,nexturl):
+    urlparts = urllib.parse.urlparse(nexturl)
+    if urlparts.netloc and (urlparts.netloc == self.params['host'] or urlparts.netloc in self.get('alias')):
+      nexturl = urlparts.path
+      if urlparts.query:
+        nexturl = nexturl + "?" + urlparts.query
+
+    self.data[url] = { 'redirect': nexturl }
+    if self.params.get("redirect_j2"):
+      self.createRedirectPage(url,nexturl)
+    return
 
   def processPage(self,url):
     self.log("Reading "+url)
