@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z $STAGING_PATH ]; then
+if [ -n $STAGING_PATH ]; then
   echo "Staging directory is not set, exiting..."
   exit
 fi

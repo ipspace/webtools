@@ -1,6 +1,6 @@
 #!/bin/bash
 . ~/.ssh/.cloudflare.sh
-if [ -z "CF_API_KEY" ]; then
+if [ -n "CF_API_KEY" ]; then
   echo "Cloudflare authentication parameters missing"
   exit
 fi

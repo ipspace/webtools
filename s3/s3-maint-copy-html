@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z "$SITE_PATH" ]; then
+if [ -n "$SITE_PATH" ]; then
   echo "Must set the site variables first"
   exit
 fi

@@ -2,12 +2,12 @@
 #
 # Step 4 - rsync staging to final if we're using staging path
 #
-if [ -z $STAGING_PATH ]; then
+if [ -n $STAGING_PATH ]; then
   echo "Staging directory is not set, exiting..."
   exit
 fi
 
-if [ -z $SITE_PATH ]; then
+if [ -n $SITE_PATH ]; then
   echo "Site path is not set, exiting..."
   exit
 fi

@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 # Minimum sanity check
-if [ -z "$SITE_PATH" ]; then
+if [ -n "$SITE_PATH" ]; then
   echo "Must set the site variables first"
   exit
 fi
 #
-if [ -z $STAGING_PATH ]; then
+if [ -n $STAGING_PATH ]; then
   STAGING_PATH=$SITE_PATH
   echo "Staging directory is not used, writing directly into $SITE_PATH"
 fi
@@ -32,7 +32,7 @@ fi
 if [ ! -d $STAGING_PATH ]; then
   mkdir $STAGING_PATH
 fi
-if [ ! -z "$SITE_GIT" ]; then
+if [ ! -n "$SITE_GIT" ]; then
   $SOURCE/mw-git-init
 fi
 #
@@ -43,7 +43,7 @@ python3 $SOURCE/mw-slurp.py --output $STAGING_PATH --redirect $STAGING_PATH/redi
 #
 # Step 4 - Git commit, sync staging to final
 #
-if [ ! -z "$SITE_GIT" ]; then
+if [ ! -n "$SITE_GIT" ]; then
   $SOURCE/mw-site-commit
 fi
 $SOURCE/mw-publish-staging
