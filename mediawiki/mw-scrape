@@ -20,11 +20,6 @@ SOURCE=$(dirname "${BASH_SOURCE[0]}")
 if [ ! -d $SITE_PATH ]; then
   echo "Creating site directory $SITE_PATH"
   mkdir $SITE_PATH
-  for path in $EXTRA
-  do
-    echo "Adding $path to $SITE_PATH"
-    ln -s $path $SITE_PATH
-  done
 fi
 #
 # Step 2 - create staging directory if needed (it might be equal to site directory)
@@ -34,6 +29,15 @@ if [ ! -d $STAGING_PATH ]; then
 fi
 if [ ! -z "$SITE_GIT" ]; then
   $SOURCE/mw-git-init
+fi
+if [ ! -z "$STAGING_PATH" ]; then
+  for path in $EXTRA
+  do
+    echo "Cleaning $STAGING_PATH/$(basename $path)"
+    rm -fr $STAGING_PATH/$(basename $path)
+    echo "Adding $path to $STAGING_PATH"
+    cp -r $path $STAGING_PATH
+  done
 fi
 #
 # Step 3 - scrape the web site
