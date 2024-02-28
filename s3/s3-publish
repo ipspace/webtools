@@ -11,6 +11,13 @@ set -e
 touch $TIMESTAMPS/publish
 rm -fr $TIMESTAMPS/publish-end
 #
+# Add robots.txt file
+#
+cat <<ROBOTS >$SITE_PATH/robots.txt
+User-agent: *
+Allow: /
+ROBOTS
+#
 # Publish MediaWiki documents with explicit content-type and encoding
 #
 aws s3 sync $SITE_PATH s3://$SITE \
