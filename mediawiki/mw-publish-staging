@@ -13,5 +13,5 @@ if [ -z $SITE_PATH ]; then
 fi
 
 if [ $STAGING_PATH != $SITE_PATH ]; then
-  rsync -cvr $STAGING_PATH/* $SITE_PATH
+  rsync -cvrL $STAGING_PATH/* $SITE_PATH
 fi
